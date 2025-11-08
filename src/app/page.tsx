@@ -7,45 +7,117 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Circle, Users, Camera, Music, Calendar, Star, Phone, Mail, MapPin, Clock, Instagram, Youtube } from "lucide-react";
+import { Heart, Circle, Users, Camera, Music, Star, Phone, Mail, MapPin, Clock, Instagram } from "lucide-react";
 import { FaTiktok } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function WeddingOrganizer() {
-  const [links, setLinks] = useState<{
-    wa_konsultasi?: string;
-    wa_cs?: string;
-    instagram?: string;
-    tiktok?: string;
-  }>({});
+  const router = useRouter();
+
+  const [links, setLinks] = useState({
+    wa_konsultasi: "",
+    wa_cs: "",
+    instagram: "",
+    tiktok: ""
+  });
+
+  const [content, setContent] = useState({
+    heroTitle: "Wujudkan Pernikahan Impianmu Bersama Elegan Wedding",
+    heroSubtitle: "Dari konsep hingga hari H, kami hadir untuk memastikan setiap momen sempurna.",
+    aboutTitle: "Tentang Kami",
+    aboutSubtitle: "Kami percaya setiap cinta punya cerita, dan tugas kami membuatnya abadi.",
+    aboutDesc1: "Elegan Wedding adalah wedding organizer profesional yang berdedikasi untuk mewujudkan pernikahan impian Anda. Dengan pengalaman lebih dari 10 tahun dalam industri pernikahan, kami telah membantu ratusan pasangan menciptakan momen spesial yang tak terlupakan.",
+    aboutDesc2: "Tim kami terdiri dari para profesional kreatif yang passionate dalam menciptakan pernikahan yang tidak hanya indah secara visual, tetapi juga penuh makna dan emosi.",
+    statWeddings: "500+",
+    statYears: "10+",
+    statVendors: "50+",
+    statSatisfaction: "98%",
+    phoneNumber: "+62 812-3456-7890",
+    email: "info@eleganwedding.com",
+    address: "Jl. Elegan No. 123, Jakarta",
+    workingHours: "Senin - Sabtu: 09:00 - 18:00",
+    footerTagline: "Kami Hadir untuk Merayakan Cinta Bersamamu 💍"
+  });
+
+  const [services, setServices] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [portfolios, setPortfolios] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [team, setTeam] = useState([]);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchLinks() {
+    async function fetchData() {
       try {
-        const res = await fetch("/api/sitelinks");
-        const data = await res.json(); // ✅ langsung JSON, bukan .text()
+        // Fetch site links
+        const linksRes = await fetch("/api/sitelinks");
+        if (linksRes.ok) {
+          const linksData = await linksRes.json();
+          setLinks(linksData);
+        }
 
-        setLinks(data);
+        // Fetch landing page content
+        const contentRes = await fetch("/api/landing-content");
+        if (contentRes.ok) {
+          const contentData = await contentRes.json();
+          setContent(prev => ({ ...prev, ...contentData }));
+        }
+
+        // Fetch services
+        const servicesRes = await fetch("/api/services");
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          setServices(servicesData);
+        }
+
+        // Fetch packages
+        const packagesRes = await fetch("/api/packages");
+        if (packagesRes.ok) {
+          const packagesData = await packagesRes.json();
+          setPackages(packagesData);
+        }
+
+        // Fetch portfolios
+const fetchPortfolios = async () => {
+  try {
+    const res = await fetch("/api/portfolio");
+    const data = await res.json();
+
+    // opsional: filter hanya portofolio aktif
+    const active = data.filter((p: any) => p.isActive !== false);
+    setPortfolios(active);
+  } catch (error) {
+    console.error("Gagal memuat portofolio:", error);
+  }
+};
+
+fetchPortfolios();
+
+
+        // Fetch testimonials
+        const testimonialsRes = await fetch("/api/testimonials");
+        if (testimonialsRes.ok) {
+          const testimonialsData = await testimonialsRes.json();
+          setTestimonials(testimonialsData);
+        }
+
+        // Fetch team members
+        const teamRes = await fetch("/api/team");
+        if (teamRes.ok) {
+          const teamData = await teamRes.json();
+          setTeam(teamData);
+        }
+
       } catch (err) {
-        console.error("Gagal memuat link:", err);
+        console.error("Gagal memuat data:", err);
+      } finally {
+        setLoading(false);
       }
     }
 
-    fetchLinks();
+    fetchData();
   }, []);
-
-  const handleWhatsAppKonsultasi = () => {
-    if (!links.wa_konsultasi)
-      return alert("Nomor WA Konsultasi belum diset di Admin!");
-    window.open(`https://wa.me/${links.wa_konsultasi}`, "_blank");
-  };
-
-  const handleWhatsAppCS = () => {
-    if (!links.wa_cs) return alert("Nomor WA CS belum diset di Admin!");
-    window.open(`https://wa.me/${links.wa_cs}`, "_blank");
-  };
-
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,100 +127,40 @@ export default function WeddingOrganizer() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const services = [
-    {
-      icon: Circle,
-      title: "Full Wedding Organizer",
-      description: "Paket lengkap dari awal hingga akhir pernikahan",
-      features: ["Perencanaan detail", "Koordinasi acara", "Manajemen vendor", "Supervisi hari H"]
-    },
-    {
-      icon: Users,
-      title: "Intimate Wedding",
-      description: "Pernikahan privat dan personal",
-      features: ["Gathering terbatas", "Personalisasi maksimal", "Setting cozy", "Budaya custom"]
-    },
-    {
-      icon: Heart,
-      title: "Decoration & Styling",
-      description: "Dekorasi dan styling pernikahan elegan",
-      features: ["Theme design", "Floral arrangement", "Lighting design", "Backdrop premium"]
-    },
-    {
-      icon: Music,
-      title: "MC & Entertainment",
-      description: "Hiburan dan hosting profesional",
-      features: ["MC berpengalaman", "Sound system", "Live music", "Photobooth"]
-    },
-    {
-      icon: Camera,
-      title: "Documentation & Photography",
-      description: "Dokumentasi kenangan abadi",
-      features: ["Photography prewed", "Cinematic video", "Drone shot", "Edit profesional"]
+  const handleWhatsAppKonsultasi = () => {
+    if (!links.wa_konsultasi) {
+      return alert("Nomor WA Konsultasi belum diset di Admin!");
     }
-  ];
+    window.open(`https://wa.me/${links.wa_konsultasi}`, "_blank");
+  };
 
-  const packages = [
-    {
-      name: "Silver Package",
-      price: "15jt",
-      features: ["Up to 100 tamu", "Basic decoration", "4 jam documentation", "1 coordinator"],
-      popular: false
-    },
-    {
-      name: "Gold Package",
-      price: "25jt",
-      features: ["Up to 200 tamu", "Premium decoration", "6 jam documentation", "2 coordinator", "Photobooth"],
-      popular: true
-    },
-    {
-      name: "Diamond Package",
-      price: "40jt",
-      features: ["Up to 300 tamu", "Luxury decoration", "Full day documentation", "4 coordinator", "Drone shot", "Live music"],
-      popular: false
-    },
-    {
-      name: "Custom Package",
-      price: "Custom",
-      features: ["Personalized sesuai kebutuhan", "Flexible durasi", "Custom decoration", "All inclusive"],
-      popular: false
+  const handleWhatsAppCS = () => {
+    if (!links.wa_cs) {
+      return alert("Nomor WA CS belum diset di Admin!");
     }
-  ];
+    window.open(`https://wa.me/${links.wa_cs}`, "_blank");
+  };
 
-  const testimonials = [
-    {
-      couple: "Rina & Budi",
-      quote: "Kami sangat puas dengan hasilnya! Tim sangat profesional dan pernikahan kami berjalan sempurna.",
-      rating: 5,
-      location: "Bali",
-      theme: "Garden Theme"
-    },
-    {
-      couple: "Siti & Ahmad",
-      quote: "Dari awal hingga akir, kami didampingi dengan baik. Setiap detail diperhatikan dengan sempurna.",
-      rating: 5,
-      location: "Jakarta",
-      theme: "Classic Elegance"
-    },
-    {
-      couple: "Maya & Dimas",
-      quote: "Wedding organizer terbaik yang pernah kami temukan! Hasilnya melebihi ekspektasi kami.",
-      rating: 5,
-      location: "Bandung",
-      theme: "Modern Minimalist"
-    }
-  ];
-
-  const scrollToSection = (sectionId: string) => {
+  const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleWhatsApp = () => {
-    const phoneNumber = "6281234567890";
-    const message = "Halo, saya ingin konsultasi jasa wedding organizer";
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
+  const getIcon = (iconName) => {
+    const icons = { Circle, Users, Heart, Music, Camera };
+    return icons[iconName] || Circle;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-white to-rose-50 flex items-center justify-center">
+        <div className="text-center">
+          <Heart className="h-16 w-16 text-rose-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-xl text-gray-600">Memuat...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-white to-rose-50">
@@ -169,6 +181,7 @@ export default function WeddingOrganizer() {
               <button onClick={() => scrollToSection("portfolio")} className="text-gray-700 hover:text-rose-500 transition-colors">Portofolio</button>
               <button onClick={() => scrollToSection("packages")} className="text-gray-700 hover:text-rose-500 transition-colors">Paket</button>
               <button onClick={() => scrollToSection("contact")} className="text-gray-700 hover:text-rose-500 transition-colors">Kontak</button>
+              <button onClick={() => router.push("/login")} className="text-gray-700 hover:text-rose-500 transition-colors font-semibold ml-4">Login</button>
             </div>
             <Button onClick={handleWhatsAppKonsultasi} className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white">
               Konsultasi Gratis
@@ -184,22 +197,22 @@ export default function WeddingOrganizer() {
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-20 left-20 w-72 h-72 bg-rose-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
           <div className="absolute top-40 right-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-40 w-72 h- bg-rose-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-8 left-40 w-72 h-72 bg-rose-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
         </div>
 
         {/* Content */}
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 leading-tight">
-            Wujudkan Pernikahan <span className="bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">Impianmu</span> Bersama Elegan Wedding
+            {content.heroTitle}
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Dari konsep hingga hari H, kami hadir untuk memastikan setiap momen sempurna.
+            {content.heroSubtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button onClick={handleWhatsAppKonsultasi} size="lg" className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-lg px-8 py-4">
               Konsultasi Gratis
             </Button>
-            <Button variant="outline" size="lg" className="text-rose-600 border-rose-200 hover:bg-rose-50 text-lg px-8 py-4">
+            <Button variant="outline" size="lg" onClick={() => scrollToSection("portfolio")} className="text-rose-600 border-rose-200 hover:bg-rose-50 text-lg px-8 py-4">
               Lihat Portofolio
             </Button>
           </div>
@@ -217,48 +230,43 @@ export default function WeddingOrganizer() {
       <section id="about" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">Tentang Kami</h2>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">{content.aboutTitle}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Kami percaya setiap cinta punya cerita, dan tugas kami membuatnya abadi.
+              {content.aboutSubtitle}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                Elegan Wedding adalah wedding organizer profesional yang berdedikasi untuk mewujudkan pernikahan impian Anda. Dengan pengalaman lebih dari 10 tahun dalam industri pernikahan, kami telah membantu ratusan pasangan menciptakan momen spesial yang tak terlupakan.
+                {content.aboutDesc1}
               </p>
               <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-                Tim kami terdiri dari para profesional kreatif yang passionatenya dalam menciptakan pernikahan yang tidak hanya indah secara visual, tetapi juga penuh makna dan emosi.
+                {content.aboutDesc2}
               </p>
               
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-rose-500 mb-2">500+</div>
+                  <div className="text-3xl font-bold text-rose-500 mb-2">{content.statWeddings}</div>
                   <div className="text-gray-600">Pernikahan Sukses</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-rose-500 mb-2">10+</div>
+                  <div className="text-3xl font-bold text-rose-500 mb-2">{content.statYears}</div>
                   <div className="text-gray-600">Tahun Pengalaman</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-rose-500 mb-2">50+</div>
+                  <div className="text-3xl font-bold text-rose-500 mb-2">{content.statVendors}</div>
                   <div className="text-gray-600">Vendor Partner</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-rose-500 mb-2">98%</div>
+                  <div className="text-3xl font-bold text-rose-500 mb-2">{content.statSatisfaction}</div>
                   <div className="text-gray-600">Kepuasan Klien</div>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              {[
-                { name: "Sarah", role: "Founder & Lead Planner", image: "/placeholder-avatar.jpg" },
-                { name: "Michael", role: "Creative Director", image: "/placeholder-avatar.jpg" },
-                { name: "Lisa", role: "Wedding Coordinator", image: "/placeholder-avatar.jpg" },
-                { name: "David", role: "Photography Director", image: "/placeholder-avatar.jpg" }
-              ].map((member, index) => (
+              {team.map((member, index) => (
                 <Card key={index} className="text-center">
                   <CardContent className="pt-6">
                     <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-rose-200 to-pink-200 rounded-full flex items-center justify-center">
@@ -285,82 +293,96 @@ export default function WeddingOrganizer() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-rose-100 hover:border-rose-200">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <service.icon className="h-8 w-8 text-rose-500" />
-                  </div>
-                  <CardTitle className="text-xl font-serif">{service.title}</CardTitle>
-                  <CardDescription className="text-gray-600">{service.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 mb-6">
-                    {service.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-gray-700">
-                        <div className="w-2 h-2 bg-rose-400 rounded-full mr-3"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white">
-                    Lihat Detail
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+            {services.map((service, index) => {
+              const IconComponent = getIcon(service.icon);
+              const features = typeof service.features === 'string' ? JSON.parse(service.features) : service.features;
+              
+              return (
+                <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-rose-100 hover:border-rose-200">
+                  <CardHeader>
+                    <div className="w-16 h-16 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <IconComponent className="h-8 w-8 text-rose-500" />
+                    </div>
+                    <CardTitle className="text-xl font-serif">{service.title}</CardTitle>
+                    <CardDescription className="text-gray-600">{service.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2 mb-6">
+                      {features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center text-gray-700">
+                          <div className="w-2 h-2 bg-rose-400 rounded-full mr-3"></div>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button onClick={handleWhatsAppKonsultasi} className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white">
+                      Lihat Detail
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Portfolio Section */}
-      <section id="portfolio" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">Portofolio Kami</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Karya-karya terbaik yang telah kami wujudkan
-            </p>
-          </div>
+        <section id="portfolio" className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+            Portofolio Kami
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Karya-karya terbaik yang telah kami wujudkan
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { location: "Bali", theme: "Garden Paradise", guests: "150", image: "/placeholder-wedding1.jpg" },
-              { location: "Jakarta", theme: "Classic Elegance", guests: "200", image: "/placeholder-wedding2.jpg" },
-              { location: "Bandung", theme: "Modern Minimalist", guests: "100", image: "/placeholder-wedding3.jpg" },
-              { location: "Yogyakarta", theme: "Cultural Heritage", guests: "300", image: "/placeholder-wedding4.jpg" },
-              { location: "Surabaya", theme: "Beach Wedding", guests: "180", image: "/placeholder-wedding5.jpg" },
-              { location: "Malang", theme: "Rustic Charm", guests: "120", image: "/placeholder-wedding6.jpg" }
-            ].map((portfolio, index) => (
-              <Card key={index} className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-64 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {portfolios.map((portfolio: any, index: number) => (
+            <Card key={index} className="group overflow-hidden hover:shadow-xl transition-all duration-300">
+              <div className="relative h-64 overflow-hidden">
+                {portfolio.imageUrl ? (
+                  <img
+                    src={portfolio.imageUrl}
+                    alt={portfolio.theme}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
                   <div className="w-full h-full bg-gradient-to-br from-rose-200 to-pink-300 flex items-center justify-center">
                     <Camera className="h-16 w-16 text-white opacity-80" />
                   </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                    <Button variant="secondary" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      Lihat Gallery
-                    </Button>
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                  <Button variant="secondary" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    Lihat Gallery
+                  </Button>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-lg mb-2">{portfolio.theme}</h3>
+                <div className="space-y-1 text-gray-600">
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {portfolio.location}
+                  </div>
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    {portfolio.guests} tamu
                   </div>
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-2">{portfolio.theme}</h3>
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {portfolio.location}
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-2" />
-                      {portfolio.guests} tamu
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {portfolios.length === 0 && (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              Belum ada portofolio untuk ditampilkan.
+            </div>
+          )}
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* Packages Section */}
       <section id="packages" className="py-20 bg-gradient-to-br from-rose-50 to-pink-50">
@@ -373,35 +395,40 @@ export default function WeddingOrganizer() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {packages.map((pkg, index) => (
-              <Card key={index} className={`relative ${pkg.popular ? 'ring-2 ring-rose-500 scale-105' : ''}`}>
-                {pkg.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-1">
-                      Popular
-                    </Badge>
-                  </div>
-                )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl font-serif">{pkg.name}</CardTitle>
-                  <div className="text-3xl font-bold text-rose-500 mt-2">{pkg.price}</div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {pkg.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center text-gray-700">
-                      <div className="w-2 h-2 bg-rose-400 rounded-full mr-3"></div>
-                      {feature}
+            {packages.map((pkg, index) => {
+              const features = typeof pkg.features === 'string' ? JSON.parse(pkg.features) : pkg.features;
+              
+              return (
+                <Card key={index} className={`relative ${pkg.isPopular ? 'ring-2 ring-rose-500 scale-105' : ''}`}>
+                  {pkg.isPopular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-1">
+                        Popular
+                      </Badge>
                     </div>
-                  ))}
-                  <Button 
-                    className={`w-full mt-6 ${pkg.popular ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white' : 'border-rose-200 text-rose-600 hover:bg-rose-50'}`}
-                    onClick={handleWhatsAppKonsultasi}
-                  >
-                    {pkg.popular ? 'Pilih Paket' : 'Konsultasi Sekarang'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  )}
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-serif">{pkg.name}</CardTitle>
+                    <div className="text-3xl font-bold text-rose-500 mt-2">{pkg.price}</div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center text-gray-700">
+                        <div className="w-2 h-2 bg-rose-400 rounded-full mr-3"></div>
+                        {feature}
+                      </div>
+                    ))}
+                    <Button 
+                      className={`w-full mt-6 ${pkg.isPopular ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white' : 'border-rose-200 text-rose-600 hover:bg-rose-50'}`}
+                      variant={pkg.isPopular ? "default" : "outline"}
+                      onClick={handleWhatsAppKonsultasi}
+                    >
+                      {pkg.isPopular ? 'Pilih Paket' : 'Konsultasi Sekarang'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -428,7 +455,7 @@ export default function WeddingOrganizer() {
                   <p className="text-gray-700 mb-4 italic">"{testimonial.quote}"</p>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold">{testimonial.couple}</h3>
+                      <h3 className="font-semibold">{testimonial.coupleName}</h3>
                       <p className="text-sm text-gray-600">{testimonial.location}</p>
                     </div>
                     <Badge variant="outline">{testimonial.theme}</Badge>
@@ -456,22 +483,22 @@ export default function WeddingOrganizer() {
                 <div className="text-center p-6 bg-white rounded-lg">
                   <Phone className="h-8 w-8 text-rose-500 mx-auto mb-3" />
                   <h3 className="font-semibold mb-1">Telepon</h3>
-                  <p className="text-gray-600">+62 812-3456-7890</p>
+                  <p className="text-gray-600">{content.phoneNumber}</p>
                 </div>
                 <div className="text-center p-6 bg-white rounded-lg">
                   <Mail className="h-8 w-8 text-rose-500 mx-auto mb-3" />
                   <h3 className="font-semibold mb-1">Email</h3>
-                  <p className="text-gray-600">info@eleganwedding.com</p>
+                  <p className="text-gray-600">{content.email}</p>
                 </div>
                 <div className="text-center p-6 bg-white rounded-lg">
                   <MapPin className="h-8 w-8 text-rose-500 mx-auto mb-3" />
                   <h3 className="font-semibold mb-1">Alamat</h3>
-                  <p className="text-gray-600">Jl. Elegan No. 123, Jakarta</p>
+                  <p className="text-gray-600">{content.address}</p>
                 </div>
                 <div className="text-center p-6 bg-white rounded-lg">
                   <Clock className="h-8 w-8 text-rose-500 mx-auto mb-3" />
                   <h3 className="font-semibold mb-1">Jam Operasional</h3>
-                  <p className="text-gray-600">Senin - Sabtu: 09:00 - 18:00</p>
+                  <p className="text-gray-600">{content.workingHours}</p>
                 </div>
               </div>
 
@@ -544,7 +571,7 @@ export default function WeddingOrganizer() {
               <span className="text-2xl font-serif font-bold">Elegan Wedding</span>
             </div>
             <p className="text-lg mb-6 opacity-90">
-              Kami Hadir untuk Merayakan Cinta Bersamamu 💍
+              {content.footerTagline}
             </p>
             
             <div className="flex flex-wrap justify-center space-x-8 mb-8">
@@ -558,16 +585,16 @@ export default function WeddingOrganizer() {
             
             <div className="flex justify-center space-x-6 mb-8">
               <a href={links.instagram || "#"} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="icon" className="text-white hover:text-pink-200 hover:bg-white/10">
-                    <Instagram className="h-5 w-5" />
-                  </Button>
-                </a>
+                <Button variant="ghost" size="icon" className="text-white hover:text-pink-200 hover:bg-white/10">
+                  <Instagram className="h-5 w-5" />
+                </Button>
+              </a>
 
-                <a href={links.tiktok || "#"} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="icon" className="text-white hover:text-pink-200 hover:bg-white/10">
-                    <FaTiktok className="text-white hover:text-pink-200 hover:bg-white/10" />
-                  </Button>
-                </a>
+              <a href={links.tiktok || "#"} target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="icon" className="text-white hover:text-pink-200 hover:bg-white/10">
+                  <FaTiktok className="h-5 w-5" />
+                </Button>
+              </a>
             </div>
             
             <div className="border-t border-pink-400 pt-8 text-sm opacity-75">

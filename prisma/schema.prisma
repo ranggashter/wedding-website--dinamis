@@ -30,3 +30,110 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+model SiteLink {
+  id            String   @id @default(cuid())
+  wa_konsultasi String?
+  wa_cs         String?
+  instagram     String?
+  tiktok        String?
+  updatedAt     DateTime @updatedAt
+}
+
+// New model for Landing Page Content
+model LandingPageContent {
+  id        String   @id @default(cuid())
+  
+  // Hero Section
+  heroTitle       String   @default("Wujudkan Pernikahan Impianmu Bersama Elegan Wedding")
+  heroSubtitle    String   @default("Dari konsep hingga hari H, kami hadir untuk memastikan setiap momen sempurna.")
+  
+  // About Section
+  aboutTitle      String   @default("Tentang Kami")
+  aboutSubtitle   String   @default("Kami percaya setiap cinta punya cerita, dan tugas kami membuatnya abadi.")
+  aboutDesc1      String   @default("Elegan Wedding adalah wedding organizer profesional...")
+  aboutDesc2      String   @default("Tim kami terdiri dari para profesional kreatif...")
+  
+  // Stats
+  statWeddings    String   @default("500+")
+  statYears       String   @default("10+")
+  statVendors     String   @default("50+")
+  statSatisfaction String  @default("98%")
+  
+  // Contact Info
+  phoneNumber     String   @default("+62 812-3456-7890")
+  email           String   @default("info@eleganwedding.com")
+  address         String   @default("Jl. Elegan No. 123, Jakarta")
+  workingHours    String   @default("Senin - Sabtu: 09:00 - 18:00")
+  
+  // Footer
+  footerTagline   String   @default("Kami Hadir untuk Merayakan Cinta Bersamamu 💍")
+  
+  updatedAt       DateTime @updatedAt
+}
+
+// Services
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String   @default("Circle")
+  features    String   // JSON string array
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Packages
+model Package {
+  id          String   @id @default(cuid())
+  name        String
+  price       String
+  features    String   // JSON string array
+  isPopular   Boolean  @default(false)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Portfolio
+model Portfolio {
+  id          String   @id @default(cuid())
+  theme       String
+  location    String
+  guests      String
+  imageUrl    String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Testimonials
+model Testimonial {
+  id          String   @id @default(cuid())
+  coupleName  String
+  quote       String
+  rating      Int      @default(5)
+  location    String
+  theme       String
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Team Members
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  imageUrl    String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
