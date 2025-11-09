@@ -47,5 +47,6 @@ pastikan kamu sudah install **Node.js (v18+)** dan **Git** di laptopmu.
 ```bash
 git clone https://github.com/username/wedding-website.git
 cd wedding-website
+###2️⃣ Install Dependencies
 npm install
 npm run dev
